@@ -1,0 +1,124 @@
+<html>
+<canvas id="scene"></canvas>
+
+<body>
+  <script type="module">
+
+
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.117.1/build/three.module.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js';
+    import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
+    import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
+    import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
+    var ww = window.innerWidth;
+    var wh = window.innerHeight;
+    var renderer;
+    var camera;
+    var scene;
+    function init() {
+      /* WEBGL RENDERER */
+      const canvas = document.querySelector('#scene');
+      renderer = new THREE.WebGLRenderer({ canvas });
+      renderer.setClearColor(0x89cff0);
+      renderer.setSize(ww, wh);
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(50, ww / wh, 1, 100000);
+      camera.position.set(895, 400, 2200);
+      camera.rotateX(-0.349066);
+      scene.add(camera);
+      const controls = new OrbitControls(camera, canvas);
+      controls.target.set(0, 5, 0);
+      controls.update();
+      const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 3);
+      light.position.set(0, 50, 0);
+      scene.add(light);
+
+
+      // const loader = new GLTFLoader();
+      // loader.load('kgirls01/scene.gltf', function (gltf) {
+      //   gltf.scene.position.set(0, 100, -3000);
+      //   gltf.scene.scale.set(100, 100, 100);
+      //   gltf.scene.rotateY(1.5708);
+      //   //gltf.scene.rotateY(0.785398);
+      //   scene.add(gltf.scene);
+      // });
+      const loader1 = new GLTFLoader();
+      loader1.load('garden/scene.gltf', function (gltf) {
+        gltf.scene.position.set(0, 0, 500);
+        gltf.scene.scale.set(150, 150, 150);
+        scene.add(gltf.scene);
+      });
+      loadAnimatedModel();
+
+
+    };
+    // function text() {
+    //   const loader0 = new THREE.FontLoader();
+    //   loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font: THREE.Font) {
+    //     const geometry = new THREE.TextGeometry("Treasure Hunt", {
+    //       font: font,
+    //       size: 5,
+    //       height: 2,
+    //     })
+    //   })
+    // }
+    var mixer;
+    var fbx;
+    var model;
+    function loadAnimatedModel() {
+      const loader = new FBXLoader();
+      // loader.setPath()
+      loader.load('aj.fbx', (fbx) => {
+        fbx.scale.setScalar(3);
+        fbx.traverse(c => {
+          c.castShadow = true;
+        });
+        const anim = new FBXLoader();
+        anim.load('walking.fbx', (anim) => {
+          mixer = new THREE.AnimationMixer(fbx);
+          const idle = mixer.clipAction(anim.animations[0]);
+          idle.play();
+        });
+        scene.add(fbx);
+      });
+    }
+    var prevTime = Date.now();
+    document.onkeydown = function (e) {
+      if (e.keyCode == 39) {
+        camera.position.x += 20;
+      }
+      else if (e.keyCode == 37) {
+        camera.position.x -= 20;
+      }
+      else if (e.keyCode == 38) {
+        camera.position.z -= 20;
+      }
+      else if (e.keyCode == 40) {
+        camera.position.z += 20;
+      }
+      if (mixer) {
+        var time = Date.now();
+        mixer.update((time - prevTime) * 0.001);
+        prevTime = time;
+      }
+      renderer.render(scene, camera);
+    }
+    // camera.lookAt( mesh.position );
+
+    function render() {
+
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
+
+
+    //Init our scene
+    init();
+  </script>
+</body>
+
+</html>
