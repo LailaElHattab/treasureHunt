@@ -1,8 +1,20 @@
 <html>
 <canvas id="scene"></canvas>
+<style>
+  #info {
+    position: absolute;
+    top: 10px;
+    color: red;
+    font-size: 20px;
+  }
+</style>
+<div id="info">&#9829;&#9829;&#9829;&#9829; Score:</div>
 
 <body>
   <script type="module">
+    //Score info
+    var lives = 4;
+    var point = 0;
 
 
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.117.1/build/three.module.js';
@@ -18,105 +30,76 @@
     var mixer;
     var controls;
     var loader4 = new THREE.TextureLoader();
-    var texture = loader4.load("wood2.jpeg");
+    var texture = loader4.load("textures/wood2.jpeg");
+    var texture1 = new THREE.TextureLoader().load('textures/gold.jpg');
 
 
-
+    //Doesn't autoplay without clicking beacuse of chrome new auto play policy
+    document.addEventListener("click", function () {
+      var audio = new Audio('audio/birds.wav');
+      audio.play();
+    });
 
     function init() {
-      /* WEBGL RENDERER */
+      document.getElementById("info").style.display = 'none';
       const canvas = document.querySelector('#scene');
       renderer = new THREE.WebGLRenderer({ canvas });
       renderer.setClearColor(0x89cff0);
       renderer.setSize(ww, wh);
+
       scene = new THREE.Scene();
+
+
       camera = new THREE.PerspectiveCamera(50, ww / wh, 1, 100000);
       camera.position.set(895, 400, 2400);
-      //camera.position.set(895, 400, 2200);
       camera.rotateX(-0.349066);
       camera.rotateY(3.14159);
-      //camera.rotateY(0.349066);
       scene.add(camera);
+
+
       controls = new OrbitControls(camera, canvas);
       controls.target.set(0, 5, 0);
       controls.update();
-      // const spotLight = new THREE.SpotLight(0xffffff, 5, { angle: Math.PI / 2 });
-      // spotLight.position.x = -1000;
-      // spotLight.position.y = 1000;
-      // spotLight.position.z = 1000;
-      // spotLight.rotation.z = -0.6;
-      // spotLight.position.set(-2000, 1500, 100);
 
-      // spotLight.castShadow = true;
-
-      // light = new THREE.SpotLight(0xffffff, 5);
-      // light.angle = Math.PI / 10;
-      // light.castShadow = true; // default false
-      // light.position.x = -1500;
-      // // light.position.z = 1200;
-      // light.position.y = 900;
-      //light.rotation.z = Math.PI;
-
-      //scene.add(light);
-      //ight.target.position = new THREE.Object3D(-1000, 0, 1200);
-      //Set up shadow properties for the light
-      // light.shadow.mapSize.width = 512; // default
-      // light.shadow.mapSize.height = 512; // default
-      // light.shadow.camera.near = 0.5; // default
-      // light.shadow.camera.far = 500; // default
-      // light.shadow.focus = 1; // default
-
-      // const spotLightHelper = new THREE.SpotLightHelper(light);
-      // scene.add(spotLightHelper);
+      //HemisphereLight
       const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 3);
       light.position.set(0, 50, 0);
       scene.add(light);
 
-
-      // const loader = new GLTFLoader();
-      // loader.load('kgirls01/scene.gltf', function (gltf) {
-      //   gltf.scene.position.set(0, 100, -3000);
-      //   gltf.scene.scale.set(100, 100, 100);
-      //   gltf.scene.rotateY(1.5708);
-      //   //gltf.scene.rotateY(0.785398);
-      //   scene.add(gltf.scene);
-      // });
-
-
-
+      //Home page
       home();
+
+      //Treasure Hunt
       gameName();
+      //Enter
       arrow();
-      boy('Waving.fbx', 700, 500, 0);
+      //Waving boy
+      boy('animation/Waving.fbx', 700, 500, 0);
+      //Enter Text
       start();
-
-
 
 
 
     };
     init();
+
+    //Spline
     var points = [];
-    var x = -2000;
-    var y = 1200;
-    var z = 2000;
+    var x = -2500;
+    var y = 400;
+    var z = 2200;
 
     for (var i = 0; i < 100; i++) {
       points.push(new THREE.Vector3(x, y, z));
       z -= 105;
-      console.log(points[i]);
     }
     var spline = new THREE.CatmullRomCurve3(points);
     var camPosIndex = 98;
     function update() {
-
-
-
       if (camPosIndex <= 0) {
         return;
       }
       var camPos = spline.getPoint(camPosIndex);
-
 
       camera.position.x = camPos.x;
       camera.position.y = camPos.y;
@@ -127,12 +110,6 @@
 
 
     }
-
-
-
-
-
-
 
 
     function home() {
@@ -159,21 +136,118 @@
           new THREE.MeshPhongMaterial({ color: 0xad4000 }),
           new THREE.MeshPhongMaterial({ color: 0x5c2301 })
         ])
-        textMesh.castShadow = true;
         textMesh.position.y = 0;
         textMesh.position.z = 1200;
         textMesh.position.x = -1000;
         textMesh.rotation.y = 0.872665;
-        // textMesh.add(light);
         scene.add(textMesh);
 
       });
     }
 
+    //Game Over
+    function gameOver() {
+      //Prints game over
+      const loader1 = new THREE.FontLoader();
+      loader1.load('./Open Sans_Italic.json', function (font) {
+        const geometry = new THREE.TextGeometry('Game Over', {
+          font: font,
+          size: 400,
+          height: 50,
+        });
+        const textMesh = new THREE.Mesh(geometry, [
+          new THREE.MeshPhongMaterial({ color: '#951B1B' }),
+          new THREE.MeshPhongMaterial({ color: '#951B1B' })
+        ])
+        textMesh.position.y = 300;
+        textMesh.position.z = -23500;
+        textMesh.position.x = -5000;
+        scene.add(textMesh);
+
+      });
+      //prints score
+      loader1.load('./Open Sans_Italic.json', function (font) {
+        const geometry1 = new THREE.TextGeometry('Score' + point, {
+          font: font,
+          size: 200,
+          height: 50,
+        });
+        const textMesh1 = new THREE.Mesh(geometry1, [
+          new THREE.MeshPhongMaterial({ color: '#000000' }),
+          new THREE.MeshPhongMaterial({ color: '#000000' })
+        ])
+        textMesh1.position.y = 700;
+        textMesh1.position.z = -23500;
+        textMesh1.position.x = -5000;
+        scene.add(textMesh1);
+
+      });
+    }
+    //Win
+    function win() {
+      var audio = new Audio('audio/winning.wav');
+      audio.play();
+      //Prints winner..winner
+      const loader9 = new THREE.FontLoader();
+      loader9.load('./Open Sans_Italic.json', function (font) {
+        const geometry = new THREE.TextGeometry('WINNER..WINNER!', {
+          font: font,
+          size: 400,
+          height: 50,
+        });
+        const textMesh = new THREE.Mesh(geometry, [
+          new THREE.MeshPhongMaterial({ color: '#951B1B' }),
+          new THREE.MeshPhongMaterial({ color: '#951B1B' })
+        ])
+        textMesh.position.y = 300;
+        textMesh.position.z = -23500;
+        textMesh.position.x = -6200;
+        scene.add(textMesh);
+
+      });
+      //print score
+      loader9.load('./Open Sans_Italic.json', function (font) {
+        const geometry2 = new THREE.TextGeometry('Score' + point, {
+          font: font,
+          size: 200,
+          height: 50,
+        });
+        const textMesh2 = new THREE.Mesh(geometry2, [
+          new THREE.MeshPhongMaterial({ color: '#000000' }),
+          new THREE.MeshPhongMaterial({ color: '#000000' })
+        ])
+        textMesh2.position.y = 700;
+        textMesh2.position.z = -23500;
+        textMesh2.position.x = -5000;
+        scene.add(textMesh2);
+
+      });
+    }
+    //Updates score on the top left corner + gameover audio
+    function printScore() {
+      if (lives == 0) {
+        var audio = new Audio('audio/gameOver.wav');
+        audio.play();
+        endingLevel();
+        gameOver();
+        document.getElementById("info").style.display = 'none';
+      }
+      if (point == 50) {
+        endingLevel();
+        win();
+        document.getElementById("info").style.display = 'none';
+      }
+      var heart = "";
+      for (i = 0; i < lives; i++) {
+        heart += "&#9829;";
+      }
+      document.getElementById("info").innerHTML = heart + " Score: " + point;
+    }
 
 
 
 
+    //arrow in homepage
     function arrow() {
       const loader4 = new GLTFLoader();
       loader4.load('arrow_3d/scene.gltf', function (gltf) {
@@ -192,30 +266,127 @@
       });
     }
 
+    //Adds diamonds
+    var diamond = [];
+    function treasure1() {
 
+      var treasure = new THREE.TextureLoader();
+      var treasureTexture = treasure.load("textures/gold.jpg");
+      var geometry = new THREE.SphereGeometry(7, 4, 2);
+      var material = new THREE.MeshLambertMaterial({ color: "#FFFF33", map: treasureTexture });
+      for (var w = 0; w < 30; w++) {
+        var x6 = Math.random() * (3500 - (-4500)) + (-4500);
+        var z6 = Math.random() * (-9000 - (-17000)) + (-17000);
+
+        diamond[w] = new THREE.Mesh(geometry, material);
+        diamond[w].scale.set(10, 10, 10);
+        diamond[w].position.x = x6;
+        diamond[w].position.z = z6;
+        diamond[w].position.y = 200;
+        scene.add(diamond[w]);
+      }
+    }
+    //Adds traps
+    var trap = [];
+    function traps() {
+      var geometry2 = new THREE.ConeGeometry(200, 0, 300);
+      var material2 = new THREE.MeshLambertMaterial({ color: 0x000000, side: THREE.DoubleSide });
+      for (i = 0; i < 13; i++) {
+        var x5 = Math.random() * (3500 - (-4500)) + (-4500);
+        var z5 = Math.random() * (-9000 - (-17000)) + (-17000);
+        trap[i] = new THREE.Mesh(geometry2, material2);
+        trap[i].position.set(x5, 100, z5);
+        scene.add(trap[i]);
+      }
+    }
+    //Level 1 model
     function level1() {
       const loader2 = new GLTFLoader();
       loader2.load('garden/scene.gltf', function (gltf) {
-        gltf.scene.position.set(-4500, 0, -11000);
-        gltf.scene.rotation.y = 0.174533;
+        gltf.scene.position.set(-3500, 0, -11000);
         gltf.scene.scale.set(300, 300, 300);
         scene.add(gltf.scene);
       });
+      treasure1();
+      traps();
     }
 
+    //Level 2 model
+    function level2() {
+      const loader3 = new GLTFLoader();
+      loader3.load('low_poly_festive_landscape/scene.gltf', function (gltf) {
+        gltf.scene.position.set(-4000, 0, -20000);
+        gltf.scene.rotation.y = 1.5707963267949;
+        gltf.scene.scale.set(19000, 19000, 19000);
+        scene.add(gltf.scene);
+      });
+      loader3.load('low_poly_festive_landscape/scene.gltf', function (gltf) {
+        gltf.scene.position.set(-4000, 0, -27000);
+        gltf.scene.rotation.y = 1.5707963267949;
+        gltf.scene.scale.set(19000, 19000, 19000);
+        scene.add(gltf.scene);
+      });
+
+
+
+
+    }
+    //Ending scene model
+    function endingLevel() {
+      const loader5 = new GLTFLoader();
+      loader5.load('forest/scene.gltf', function (gltf) {
+        gltf.scene.position.set(-4500, 0, -25000);
+        gltf.scene.rotateY(90);
+        gltf.scene.scale.set(300, 300, 300);
+        scene.add(gltf.scene);
+        camera.position.z = -20000;
+        camera.position.x = -2000;
+        controls.target.set(-4500, 2000, -25000);
+        controls.update();
+      });
+    }
+
+    //Sky dome for level 1
+    function sky() {
+      var skyGeo = new THREE.SphereGeometry(12000, 50, 50);
+      var loader = new THREE.TextureLoader(), texture = loader.load("skybox/blue-sky2.jpg");
+      var material = new THREE.MeshPhongMaterial({
+        map: texture,
+      })
+
+      var sky = new THREE.Mesh(skyGeo, material);
+
+      sky.material.side = THREE.BackSide;
+      sky.position.set(-1300, 3000, -16000);
+      scene.add(sky);
+    }
+    //Sky dome for level 2
+    function snow() {
+      var snowGeo = new THREE.SphereGeometry(12000, 50, 50);
+      var loader = new THREE.TextureLoader(), texture = loader.load("skybox/dark-sky.jpg");
+      var material = new THREE.MeshPhongMaterial({
+        map: texture,
+      })
+
+      var snow = new THREE.Mesh(snowGeo, material);
+
+      snow.material.side = THREE.BackSide;
+      snow.position.set(-4500, 3000, -32000);
+      scene.add(snow);
+    }
 
     var animation;
+    var level = 0;
+    //Boy skin + animation
     function boy(action, x, z, y) {
       const loader = new FBXLoader();
 
-      loader.load('aj.fbx', (fbx) => {
+      loader.load('textures/aj.fbx', (fbx) => {
         fbx.scale.setScalar(3);
         fbx.position.x = x;
         fbx.position.z = z;
         fbx.rotation.y = y;
-        fbx.traverse(c => {
-          c.castShadow = true;
-        });
+
         const anim = new FBXLoader();
         anim.load(action, (anim) => {
           mixer = new THREE.AnimationMixer(fbx);
@@ -223,28 +394,36 @@
           idle.play();
         });
         scene.add(fbx);
-        var level = 0;
+
         document.onkeydown = function (e) {
+
           if (e.keyCode == 39) {
             camera.position.x += 20;
             fbx.position.x += 20;
+
           }
           else if (e.keyCode == 37) {
             camera.position.x -= 20;
             fbx.position.x -= 20;
+
           }
           else if (e.keyCode == 38) {
             camera.position.z -= 20;
             fbx.position.z -= 20;
+
           }
           else if (e.keyCode == 38) {
             camera.position.z -= 20;
             fbx.position.z -= 20;
+
           }
           else if (e.keyCode == 40) {
             camera.position.z += 20;
             fbx.position.z += 20;
+
+
           } else if (e.keyCode == 13) {
+            document.getElementById("info").style.display = 'inline';
             update();
             level++;
             if (level == 1) {
@@ -252,12 +431,59 @@
               controls.target.set(-2600, -200, -20000);
               controls.update();
               level1();
-              boy('walking.fbx', -2600, -9000, 3.14159);
+              sky();
+              boy('animation/walking.fbx', -2600, -9000, 3.14159);
+            }
+          }
+          if (point == 20) {
+            level++;
+          }
+          if (level == 2) {
+            camera.rotation.x = 0.698132;
+            camera.position.z = -30000;
+            camera.position.x = -4500;
+            camera.position.y = 500;
+            controls.target.set(-4500, 0, -35000);
+            controls.update();
+            level2();
+            snow();
+            fbx.position.z = -31000;
+            fbx.position.x = -4500;
+            fbx.position.y = 100;
+            for (var i = 0; i < 13; i++) {
 
+              trap[i].position.z -= 20000;
+              trap[i].position.x -= 3500;
 
             }
-            renderer.render(scene, camera);
+            for (var j = 0; j < 30; j++) {
 
+              diamond[j].position.z -= 20000;
+              diamond[j].position.x -= 3500;
+
+            }
+          }
+          renderer.render(scene, camera);
+          for (var l = 0; l < 30; l++) {
+
+            if (Math.abs(diamond[l].position.x - fbx.position.x) <= 60 && Math.abs(diamond[l].position.z - fbx.position.z) <= 60 && diamond[l].parent === scene) {
+              scene.remove(diamond[l]);
+              var audio = new Audio('audio/coin.wav');
+              audio.play();
+              point += 10;
+              printScore();
+
+            }
+          }
+          for (var s = 0; s < 13; s++) {
+
+            if (Math.abs(trap[s].position.x - fbx.position.x) <= 150 && Math.abs(trap[s].position.z - fbx.position.z) <= 150 && trap[s].parent === scene) {
+              scene.remove(trap[s]);
+              var audio = new Audio('audio/ow.wav');
+              audio.play();
+              lives -= 1;
+              printScore();
+            }
           }
           if (mixer) {
             var time = Date.now();
@@ -266,11 +492,12 @@
           }
         }
       });
-
-      if (action == 'Waving.fbx') {
+      renderer.render(scene, camera);
+      if (action == 'animation/Waving.fbx') {
         animation = 'wave';
 
-      } else {
+      }
+      else {
         animation = 'walk';
       }
       return animation;
@@ -278,7 +505,7 @@
     }
 
     var textMesh;
-
+    //Enter text
     function start() {
 
       const loader5 = new THREE.FontLoader();
@@ -300,26 +527,18 @@
         scene.add(textMesh);
 
       });
+
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     var prevTime = Date.now();
     function render() {
+      if (level == 1) {
+        for (var e = 0; e < 30; e++) {
+          diamond[e].rotation.y += 0.03;
+
+        }
+      }
       if (animation == 'wave') {
         if (mixer) {
           var time = Date.now();
@@ -327,20 +546,12 @@
           prevTime = time;
         }
       }
-
-
-      //console.log(camera.position.z);
-      // light.position.x -= 500;
-      // light.rotation.z += 0.01;
-      // light.position.x += 500;
       renderer.render(scene, camera);
       requestAnimationFrame(render);
 
     }
 
     requestAnimationFrame(render);
-
-    //Init our scene
 
   </script>
 </body>
