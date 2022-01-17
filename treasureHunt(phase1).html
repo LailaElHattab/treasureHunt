@@ -1,0 +1,540 @@
+<html>
+<canvas id="scene"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.min.js"></script>
+<style>
+  #info {
+    position: absolute;
+    top: 10px;
+    color: red;
+    font-size: 20px;
+  }
+
+  #gameOver {
+    position: absolute;
+    top: 40%;
+    left: 30%;
+    font-size: 100px;
+    color: white;
+    font-family: Arial;
+  }
+</style>
+
+<div id="info">&#9829;&#9829;&#9829;&#9829; Score:</div>
+<div id="gameOver"></div>
+
+<body>
+  <script>
+    //Score info
+    var lives = 4;
+    var points = 0;
+
+    //Get the height and the width of the window 
+    var ww = window.innerWidth;
+    var wh = window.innerHeight;
+
+    function init() {
+      /* WEBGL RENDERER */
+
+      //Create the webgl renderer from Three
+      renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('scene') });
+      //Set the background of our scene
+      renderer.setClearColor('#87ceeb');
+      //Set the size of my renderer, I want it to be fullscreen
+      renderer.setSize(ww, wh);
+
+      /* SCENE */
+      //Create my scene
+      scene = new THREE.Scene();
+
+      /* CAMERA */
+      //Create a new Perspective Camera with four parameters
+      //perspectivecamera (FOV,aspect,Near,Far)
+      camera = new THREE.PerspectiveCamera(100, ww / wh, 1, 10000);
+      //We set our camera at x:0, y:0 and z:500
+      camera.position.set(0, 200, 600);
+      //And finally we add our camera in our scene
+      scene.add(camera);
+      //control = new THREE.OrbitControls(camera);
+      /* LIGHT */
+      //Create a white 'directional light'
+      light = new THREE.DirectionalLight(0xffffff, 1);
+      //We set the position of our light
+      light.position.set(100, 500, 500);
+      //We add our light into the scene
+      scene.add(light);
+
+      //Create game objects
+      box();
+      treasure1();
+      treasure2();
+      addTraps();
+      ground();
+      clouds();
+      addClouds();
+      addTrees();
+      addBushes();
+    };
+
+
+    //Creates ground
+    function ground() {
+      geometry5 = new THREE.PlaneGeometry(9000, 8000);
+      material5 = new THREE.MeshLambertMaterial({
+        color: '#396211'
+        , side: THREE.DoubleSide
+      });
+      ground = new THREE.Mesh(geometry5, material5);
+      ground.position.set(0, -400, 0);
+      ground.rotateX(300);
+      scene.add(ground);
+    }
+
+
+
+
+    //Creates clouds
+    function clouds() {
+      geometry8 = new THREE.CircleGeometry(100, 100);
+      material8 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle = new THREE.Mesh(geometry8, material8);
+      circle.position.set(-10, 870, -450);
+
+      geometry9 = new THREE.CircleGeometry(100, 100);
+      material9 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle1 = new THREE.Mesh(geometry8, material8);
+      circle1.position.set(100, 910, -450);
+
+
+      geometry11 = new THREE.CircleGeometry(100, 100);
+      material11 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle2 = new THREE.Mesh(geometry11, material11);
+      circle2.position.set(200, 930, -450);
+
+
+      geometry12 = new THREE.CircleGeometry(100, 100);
+      material12 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle3 = new THREE.Mesh(geometry12, material12);
+      circle3.position.set(0, 790, -450);
+
+
+      geometry13 = new THREE.CircleGeometry(100, 100);
+      material13 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle4 = new THREE.Mesh(geometry13, material13);
+      circle4.position.set(300, 900, -450);
+
+
+      geometry14 = new THREE.CircleGeometry(100, 100);
+      material14 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle5 = new THREE.Mesh(geometry14, material14);
+      circle5.position.set(350, 800, -450);
+
+      geometry15 = new THREE.CircleGeometry(100, 100);
+      material15 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle6 = new THREE.Mesh(geometry15, material15);
+      circle6.position.set(250, 750, -450);
+
+
+      geometry16 = new THREE.CircleGeometry(100, 100);
+      material16 = new THREE.MeshBasicMaterial({ color: 0xF5F5F5 });
+      circle7 = new THREE.Mesh(geometry16, material16);
+      circle7.position.set(130, 750, -450);
+
+      //Group the circles into clouds
+      group = new THREE.Group();
+      group.add(circle);
+      group.add(circle1);
+      group.add(circle2);
+      group.add(circle3);
+      group.add(circle4);
+      group.add(circle5);
+      group.add(circle6);
+      group.add(circle7);
+      group.position.set(-5000, -500, -1000);
+      group.scale.set(3, 3, 3);
+      scene.add(group);
+
+
+    }
+
+
+
+
+    //Adds more clouds by cloning 
+    function addClouds() {
+      cloud = [];
+      for (i = 0; i < 2; i++) {
+        cloud[i] = group.clone();
+        cloud[i].position.set(-1000 + (i * 3500), -500, -1500);
+        scene.add(cloud[i]);
+      }
+    }
+
+
+    //Creates cube
+    function box() {
+      //Cube
+      geometry = new THREE.BoxGeometry(100, 100, 100);
+      material = new THREE.MeshLambertMaterial({ color: '#E1769D' });
+      cube = new THREE.Mesh(geometry, material);
+      cube.position.y = -400;
+      cube.position.z = -100;
+      scene.add(cube);
+    }
+
+    diamond = [];
+    diamondObj = [];
+    geometry = [];
+    material = [];
+
+    //Creates Diamond Randomly
+    function treasure1() {
+
+      //Diamond
+      for (w = 0; w < 7; w++) {
+        x6 = Math.random() * (-2000 - (2000)) + (2000); //(upper-lower)+lower
+        z6 = Math.random() * (-100 + (-900)) + (-900);
+        geometry[w] = new THREE.SphereGeometry(7, 4, 2);
+        material[w] = new THREE.MeshLambertMaterial({ color: "#FFFF33" });
+        diamond[w] = new THREE.Mesh(geometry[w], material[w]);
+        diamond[w].scale.set(10, 10, 10);
+        diamond[w].position.x = x6;
+        diamond[w].position.z = z6;
+        diamond[w].position.y = -350;
+        diamondObj[w] = new THREE.Box3().setFromObject(diamond[w]);
+        scene.add(diamond[w]);
+      }
+    }
+
+
+    ring = [];
+    ringObj = [];
+    geometry6 = [];
+    material6 = [];
+    //Creates Ring Randomly
+    function treasure2() {
+
+      //ring
+      for (q = 0; q < 7; q++) {
+        x7 = Math.random() * (-2000 - (2000)) + (2000);
+        z7 = Math.random() * (-100 + (-900)) + (-900);
+        geometry6[q] = new THREE.RingGeometry(70, 60, 42);
+        material6[q] = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+        ring[q] = new THREE.Mesh(geometry6[q], material6[q]);
+        ring[q].position.set(x7, -350, z7);
+        scene.add(ring[q]);
+        ringObj[q] = new THREE.Box3().setFromObject(ring[q]);
+        scene.add(ring[q]);
+      }
+    }
+
+
+
+    //Creates trees (type1) from cones and cylinders
+    function trees1(x, z, size) {
+
+      geometry1 = new THREE.CylinderGeometry(50, 50, size, 40);
+      material1 = new THREE.MeshLambertMaterial({ color: '#876441' });
+      let cylinder = new THREE.Mesh(geometry1, material1);
+      cylinder.position.set(x, -100, z);
+      scene.add(cylinder);
+
+      geometry2 = new THREE.ConeGeometry(150, 500, 12);
+      material2 = new THREE.MeshLambertMaterial({ color: '#67A42F' });
+      let cone = new THREE.Mesh(geometry2, material2);
+      cone.position.set(x, (size - 300), z);
+      scene.add(cone);
+
+
+    }
+    //Creates trees (type1) from spheres and cylinders
+    function trees2(x, z) {
+
+      geometry1 = new THREE.CylinderGeometry(50, 50, 400, 40);
+      material1 = new THREE.MeshLambertMaterial({ color: '#876441' });
+      bottom = new THREE.Mesh(geometry1, material1);
+      bottom.position.set(x, -100, z);
+      scene.add(bottom);
+
+      geometry2 = new THREE.SphereGeometry(200, 5, 5);
+      material2 = new THREE.MeshLambertMaterial({ color: '#67A42F' });
+      cone2 = new THREE.Mesh(geometry2, material2);
+      cone2.position.set(x, 300, z);
+      scene.add(cone2);
+
+    }
+
+
+
+    //Random for trees (type1) on left side
+    var randoLeft1 = function () {
+      x1 = Math.random() * (-1000 - (-5000)) + (-5000);
+      //x1 = Math.random() * (-1) * ((5000 - (400)) + (400));
+      z1 = Math.random() * (-100 + (-900)) + (-900);
+      size1 = Math.random() * (1000 - 400) + 400;
+      trees1(x1, z1, size1);
+    };
+
+
+    //Random for trees (type2) on left side
+    var randoLeft2 = function () {
+      x4 = Math.random() * (-1000 - (-5000)) + (-5000);
+      z4 = Math.random() * (-100 + (-900)) + (-900);
+      trees2(x4, z4);
+    };
+
+
+
+    //Random for trees (type1) on right side
+    var randoRight1 = function () {
+      x = Math.random() * (5000 - (400)) + (400);
+      z = Math.random() * (-100 + (-900)) + (-900);
+      size2 = Math.random() * (1000 - 400) + 400;
+      trees1(x, z, size2);
+
+    };
+
+
+    //Random for trees (type2) on right side 
+    var randoRight2 = function () {
+      x3 = Math.random() * (5000 - (400)) + (400);
+      z3 = Math.random() * (-100 + (-900)) + (-900);
+      trees2(x3, z3);
+
+    };
+
+
+    //Adds trees
+    function addTrees() {
+      for (let i = 0; i < 20; i++) {
+        randoLeft1();
+        randoRight1();
+        randoRight2();
+        randoLeft2();
+      }
+    }
+
+
+    //Creates bushes
+    function bushes(x, z) {
+
+      geometry = new THREE.SphereGeometry(100, 5, 5);
+      material = new THREE.MeshLambertMaterial({ color: '#8FBD11' })
+      bush = new THREE.Mesh(geometry, material);
+      bush.position.set(x, -350, z);
+      scene.add(bush);
+
+      geometry = new THREE.SphereGeometry(70, 5, 5);
+      material = new THREE.MeshLambertMaterial({ color: '#8FBD11' })
+      bush = new THREE.Mesh(geometry, material);
+      bush.position.set(x - 100, -400, z);
+      scene.add(bush);
+    }
+
+
+    //Random bushes
+    function randoBushes() {
+      x2 = Math.random() * (-3000 - (3000)) + (3000);
+      z2 = Math.random() * (-400 + (-900)) + (-900);
+      bushes(x2, z2);
+    }
+
+
+    //Adds bushes
+    function addBushes() {
+      for (let i = 0; i < 20; i++) {
+        randoBushes();
+      }
+    }
+
+
+    traps = [];
+    trapObj = [];
+    geometry2 = [];
+    material2 = [];
+    //Adds traps randomly
+    function addTraps() {
+      for (i = 0; i < 7; i++) {
+
+        x5 = Math.random() * (-2000 - (2000)) + (2000);
+        z5 = Math.random() * (-100 + (-900)) + (-900);
+        geometry2[i] = new THREE.CircleGeometry(100, 32);
+        material2[i] = new THREE.MeshLambertMaterial({ color: 0x000000, side: THREE.DoubleSide });
+        traps[i] = new THREE.Mesh(geometry2[i], material2[i]);
+        traps[i].rotateX(-1.5708);
+        traps[i].position.set(x5, -400, z5);
+        trapObj[i] = new THREE.Box3().setFromObject(traps[i]);
+        scene.add(traps[i]);
+      }
+    }
+
+    //Scenario when gameover
+    function gameOver() {
+      geometry0 = new THREE.PlaneGeometry(10000, 10000);
+      material0 = new THREE.MeshBasicMaterial({ color: "#000000", opacity: 0.25 });
+      backg = new THREE.Mesh(geometry0, material0);
+      backg.position.set(0, 100, 400);
+      scene.add(backg);
+      document.getElementById("gameOver").innerHTML = "Game Over";
+      document.getElementById("info").innerHTML = "Score: " + points;
+      document.getElementById("info").style.position = "absolute";
+      document.getElementById("info").style.top = "60%";
+      document.getElementById("info").style.left = "41%";
+      document.getElementById("info").style.fontSize = "50px";
+    }
+
+
+
+    //Prints the score data
+    function printScore() {
+      if (lives == 0) {
+        gameOver();
+      }
+      heart = "";
+      for (i = 0; i < lives; i++) {
+        heart += "&#9829;";
+      }
+      document.getElementById("info").innerHTML = heart + " Score: " + points;
+    }
+
+
+    //Collision detection 1 (between cube and trap)
+    var collision = [];
+    function collision1() {
+      for (j = 0; j < 7; j++) {
+        collision[j] = cubeObj.intersectsBox(trapObj[j]);
+        if (collision[j]) { // if true lives decrease
+          lives -= 1;
+          cube.position.set(0, -400, -100);
+          camera.position.set(0, 200, 600);
+          printScore();
+        }
+      }
+
+
+    }
+
+    var collisions2 = [];
+    //Collision detection 2 (between cube and diamond)
+    function collision2() {
+
+      for (s = 0; s < 7; s++) {
+        collisions2[s] = cubeObj.intersectsBox(diamondObj[s]);
+        //If collision occurs, the diamond becomes less opaque & increase 30 points 
+        if (collisions2[s] && diamond[s].material.opacity != 0.40) {
+          diamond[s].material.transparent = true;
+          diamond[s].material.opacity = 0.40;
+          points += 30;
+          printScore();
+        }
+      }
+    }
+
+    var collisions3 = [];
+    //Collision detection 2 (between cube and ring)
+    function collision3() {
+      for (t = 0; t < 7; t++) {
+        collisions3[t] = cubeObj.intersectsBox(ringObj[t]);
+        //If collision occurs, the ring becomes less opaque & increase 10 points 
+        if (collisions3[t] && ring[t].material.opacity != 0.10) {
+          ring[t].material.transparent = true;
+          ring[t].material.opacity = 0.10;
+          points += 10;
+          printScore();
+        }
+      }
+    }
+
+    document.onkeydown = (e) => {
+
+      //Defines cube 
+      //Bounding box creates a collision box for that object
+      cubeObj = new THREE.Box3().setFromObject(cube);
+
+      //Collision Detection
+      collision1();
+      collision2();
+      collision3();
+
+      //rotates to the left (a)
+      if (e.keyCode == 65) {
+
+        camera.rotateY(3.14 / 10);
+
+      }
+      //rotates to the right (d)
+      if (e.keyCode == 68) {
+
+        camera.rotateY(-3.14 / 10);
+
+      }
+      //Left
+      if (e.key == 'ArrowLeft') {
+        cube.position.x -= 20;
+        camera.position.x -= 20;
+
+      }
+      //Right
+      if (e.key == 'ArrowRight') {
+        cube.position.x += 20;
+        camera.position.x += 20;
+
+      }
+      //Up
+      if (e.key == 'ArrowUp') {
+        cube.position.z -= 20;
+        camera.position.z -= 20;
+        cube.rotateX(45);
+
+        //Exapnds the plane size
+        ground.scale.x = 5;
+        ground.scale.y = 5;
+        ground.scale.z = 5;
+
+      }
+      //Down
+      if (e.key == 'ArrowDown') {
+        cube.position.z += 20;
+        camera.position.z += 20;
+        cube.rotateX(-45);
+
+      }
+      e.preventDefault();
+    }
+
+    //Factor for the clouds translation 
+    var factor = 1; //speed
+    var render = function () {
+      requestAnimationFrame(render);
+
+      //Diamond and Ring rotation animation
+      for (e = 0; e < 7; e++) {
+        diamond[e].rotation.y += 0.03;
+        ring[e].rotation.y += 0.01;
+      }
+
+      //Clouds translation animation
+      //Cloud 1
+      group.position.x += factor;
+      if (group.position.x > -1000) factor = -3;  //left 
+      if (group.position.x < -6000) factor = 3;  //right
+      //Cloud 2
+      cloud[0].position.x += factor;
+      if (cloud[0].position.x > 3000) factor = -3;  //left 
+      if (cloud[0].position.x < -2000) factor = 3;  //right
+      //Cloud 3
+      cloud[1].position.x += factor;
+      if (cloud[1].position.x > 3000) factor = -3;  //left 
+      if (cloud[1].position.x < -2000) factor = 3;  //right
+
+
+      renderer.render(scene, camera);
+    };
+
+
+    //Init our scene
+    init();
+    render();
+  </script>
+</body>
+
+</html>
